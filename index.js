@@ -44,7 +44,7 @@ async function run() {
         const reviewCollection = client.db('sportsSphere').collection('reviews');
         const userCollection = client.db('sportsSphere').collection('users');
         const classCollection = client.db('sportsSphere').collection('classes');
-        const cartCollection = client.db('sportsSphere').collection('carts');
+        const selectClassesCollection = client.db('sportsSphere').collection('selectClasses');
 
         // Class APIs
         app.get('/classes', async (req, res) => {
@@ -67,9 +67,9 @@ async function run() {
             res.send(result)
         })
         // Carts APIs
-        app.post('/carts', async (req, res) => {
+        app.post('/selectClasses', async (req, res) => {
             const item = req.body;
-            const result = await cartCollection.insertOne(item);
+            const result = await selectClassesCollection.insertOne(item);
             res.send(result);
         })
 
