@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -11,12 +12,12 @@ app.use(express.json());
 const verifyJWT = (req, res, next) => {
     const authorization = req.headers.authorization;
     if (!authorization) {
-        return res.status(401).send({ error: true, message: 'unauthorize access' })
+        return res.status(401).send({ error: true, message: 'unauthorized access' })
     }
     const token = authorization.split(' ')[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRETE, (err, decoded) => {
         if (err) {
-            return res.status(401).send({ error: true, message: 'unauthorize access' });
+            return res.status(401).send({ error: true, message: 'unauthorized access' });
         }
         req.decoded = decoded;
         next();
@@ -46,6 +47,13 @@ async function run() {
         const classCollection = client.db('sportsSphere').collection('classes');
         const seClassesCollection = client.db('sportsSphere').collection('selectClasses');
 
+        // JWT
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRETE, { expiresIn: "1h" });
+            res.send({ token });
+        })
+
         // Class APIs
         app.get('/classes', async (req, res) => {
             const result = await classCollection.find().toArray();
@@ -67,10 +75,14 @@ async function run() {
             res.send(result)
         })
         // SlectClass APIs
-        app.get('/seClasses', async (req, res) => {
+        app.get('/seClasses', verifyJWT, async (req, res) => {
             const email = req.query.email;
             if (!email) {
                 res.send([])
+            }
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: true, message: 'forbidden access' });
             }
             const query = { stuEmail: email };
             const result = await seClassesCollection.find(query).toArray();
