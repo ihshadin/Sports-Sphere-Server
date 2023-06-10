@@ -66,7 +66,7 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result)
         })
-        // Carts APIs
+        // SlectClass APIs
         app.post('/selectClasses', async (req, res) => {
             const item = req.body;
             const result = await selectClassesCollection.insertOne(item);
