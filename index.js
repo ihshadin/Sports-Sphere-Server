@@ -44,7 +44,7 @@ async function run() {
         const reviewCollection = client.db('sportsSphere').collection('reviews');
         const userCollection = client.db('sportsSphere').collection('users');
         const classCollection = client.db('sportsSphere').collection('classes');
-        const selectClassesCollection = client.db('sportsSphere').collection('selectClasses');
+        const seClassesCollection = client.db('sportsSphere').collection('selectClasses');
 
         // Class APIs
         app.get('/classes', async (req, res) => {
@@ -67,18 +67,18 @@ async function run() {
             res.send(result)
         })
         // SlectClass APIs
-        app.get('/selectClasses', async (req, res) => {
+        app.get('/seClasses', async (req, res) => {
             const email = req.query.email;
             if (!email) {
                 res.send([])
             }
             const query = { email: email };
-            const result = await selectClassesCollection.find(query).toArray();
+            const result = await seClassesCollection.find(query).toArray();
             res.send(result);
         })
-        app.post('/selectClasses', async (req, res) => {
+        app.post('/seClasses', async (req, res) => {
             const item = req.body;
-            const result = await selectClassesCollection.insertOne(item);
+            const result = await seClassesCollection.insertOne(item);
             res.send(result);
         })
 
