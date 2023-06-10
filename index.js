@@ -67,6 +67,15 @@ async function run() {
             res.send(result)
         })
         // SlectClass APIs
+        app.get('/selectClasses', async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([])
+            }
+            const query = { email: email };
+            const result = await selectClassesCollection.find(query).toArray();
+            res.send(result);
+        })
         app.post('/selectClasses', async (req, res) => {
             const item = req.body;
             const result = await selectClassesCollection.insertOne(item);
