@@ -4,5 +4,24 @@
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "mongodb": "^5.6.0"
-  }
+  },
+  "name": "sports-sphere-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programming-hero-web-course1/b7a12-summer-camp-server_side-ihshadin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/programming-hero-web-course1/b7a12-summer-camp-server_side-ihshadin/issues"
+  },
+  "homepage": "https://github.com/programming-hero-web-course1/b7a12-summer-camp-server_side-ihshadin#readme",
+  "description": ""
 }
