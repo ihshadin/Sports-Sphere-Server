@@ -59,25 +59,11 @@ async function run() {
             const result = await classCollection.find().toArray();
             res.send(result);
         })
-        // User APIs
-        app.get('/users', async (req, res) => {
-            const result = await userCollection.find().toArray();
-            res.send(result);
-        })
-        app.post('/user', async (req, res) => {
-            const user = req.body;
-            const query = { email: user.email };
-            const exixtedUser = await userCollection.findOne(query);
-            if (exixtedUser) {
-                return res.send({ message: "this user already exist" })
-            }
-            const result = await userCollection.insertOne(user);
-            res.send(result)
-        })
-        app.get('/users/role/:email', verifyJWT, async (req, res) => {
+        // My Classes
+        app.get('/myClasses/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
-            const query = { email: email };
-            const result = await userCollection.findOne(query);
+            const query = { instructorEmail: email };
+            const result = await classCollection.find(query).toArray();
             res.send(result);
         })
         // SlectClass APIs
@@ -103,6 +89,27 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await seClassesCollection.deleteOne(query);
+            res.send(result);
+        })
+        // User APIs
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        })
+        app.post('/user', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email };
+            const exixtedUser = await userCollection.findOne(query);
+            if (exixtedUser) {
+                return res.send({ message: "this user already exist" })
+            }
+            const result = await userCollection.insertOne(user);
+            res.send(result)
+        })
+        app.get('/users/role/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await userCollection.findOne(query);
             res.send(result);
         })
 
