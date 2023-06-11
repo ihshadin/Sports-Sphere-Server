@@ -65,7 +65,7 @@ async function run() {
             const result = await classCollection.findOne(query);
             res.send(result);
         })
-        app.put('/classes/:id', verifyJWT, async (req, res) => {
+        app.put('/classes/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const update = req.body;
@@ -78,6 +78,11 @@ async function run() {
                 }
             }
             const result = await classCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
+        app.post('/classes', async (req, res) => {
+            const classes = req.body;
+            const result = await classCollection.insertOne(classes);
             res.send(result);
         })
         // My Classes
