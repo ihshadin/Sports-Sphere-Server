@@ -74,6 +74,12 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result)
         })
+        app.get('/users/role/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        })
         // SlectClass APIs
         app.get('/seClasses', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -110,6 +116,7 @@ async function run() {
             const result = await reviewCollection.find().toArray();
             res.send(result);
         })
+
 
 
         // Send a ping to confirm a successful connection
