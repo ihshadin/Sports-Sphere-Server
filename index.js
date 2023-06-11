@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const app = express();
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const port = process.env.PORT || 5000;
 
 // Middleware
@@ -46,6 +47,7 @@ async function run() {
         const userCollection = client.db('sportsSphere').collection('users');
         const classCollection = client.db('sportsSphere').collection('classes');
         const seClassesCollection = client.db('sportsSphere').collection('selectClasses');
+        const paymentsCollection = client.db('sportsSphere').collection('payments');
 
         // JWT
         app.post('/jwt', async (req, res) => {
@@ -106,19 +108,6 @@ async function run() {
             const result = await classCollection.updateOne(query, updateDoc);
             res.send(result);
         })
-        // app.put('/classes/feedback/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const feedback = req.body.feedback;
-        //     console.log(feedback, id);
-        //     const query = { _id: new ObjectId(id) };
-        //     const updateDoc = {
-        //         $set: {
-        //             feedback: feedback
-        //         }
-        //     }
-        //     const result = await classCollection.updateOne(query, updateDoc);
-        //     res.send(result);
-        // });
 
         // My Classes
         app.get('/myClasses/:email', verifyJWT, async (req, res) => {
@@ -140,6 +129,12 @@ async function run() {
             const query = { stuEmail: email };
             const result = await seClassesCollection.find(query).toArray();
             res.send(result);
+        })
+        app.get('/payment/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await seClassesCollection.findOne(query);
+            res.send(result)
         })
         app.post('/seClasses', async (req, res) => {
             const item = req.body;
@@ -195,6 +190,40 @@ async function run() {
         app.get('/reviews', async (req, res) => {
             const result = await reviewCollection.find().toArray();
             res.send(result);
+        })
+
+        // Create Payment Intent
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+            const { price } = req.body;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: [
+                    'card'
+                ]
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            })
+        })
+        // Payments APIs
+        app.post('/payments', verifyJWT, async (req, res) => {
+            const payment = req.body;
+            const enrolledResult = await paymentsCollection.insertOne(payment);
+            const classId = payment.classId;
+            const query = { _id: new ObjectId(classId) }
+            const update = {
+                $inc: {
+                    availableSeats: -1,
+                    enrolledStudents: 1
+                }
+            };
+            const updateResult = await classCollection.updateOne(query, update);
+            const selClassId = payment.selClassId;
+            const deletedQuery = { _id: new ObjectId(selClassId) };
+            const deleteResult = await seClassesCollection.deleteOne(deletedQuery);
+            res.send({ enrolledResult, updateResult, deleteResult });
         })
 
 
