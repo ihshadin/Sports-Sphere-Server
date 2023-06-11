@@ -85,6 +85,41 @@ async function run() {
             const result = await classCollection.insertOne(classes);
             res.send(result);
         })
+        app.put('/classes/:status/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.params.status;
+            let updateDoc;
+            if (status === 'approved' || status === 'deny') {
+                updateDoc = {
+                    $set: {
+                        status: status,
+                    }
+                }
+            } else {
+                updateDoc = {
+                    $set: {
+                        feedback: status
+                    }
+                }
+            }
+            const query = { _id: new ObjectId(id) };
+            const result = await classCollection.updateOne(query, updateDoc);
+            res.send(result);
+        })
+        // app.put('/classes/feedback/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const feedback = req.body.feedback;
+        //     console.log(feedback, id);
+        //     const query = { _id: new ObjectId(id) };
+        //     const updateDoc = {
+        //         $set: {
+        //             feedback: feedback
+        //         }
+        //     }
+        //     const result = await classCollection.updateOne(query, updateDoc);
+        //     res.send(result);
+        // });
+
         // My Classes
         app.get('/myClasses/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
@@ -138,12 +173,13 @@ async function run() {
             const result = await userCollection.findOne(query);
             res.send(result);
         })
-        app.put('/users/instructor/:id', async (req, res) => {
+        app.put('/users/:role/:id', async (req, res) => {
             const id = req.params.id;
+            const role = req.params.role
             const query = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
-                    roel: 'instructor'
+                    role: role
                 }
             }
             const result = await userCollection.updateOne(query, updateDoc);
