@@ -59,6 +59,27 @@ async function run() {
             const result = await classCollection.find().toArray();
             res.send(result);
         })
+        app.get('/classes/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await classCollection.findOne(query);
+            res.send(result);
+        })
+        app.put('/classes/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const update = req.body;
+            const updatedDoc = {
+                $set: {
+                    className: update.clName,
+                    classImage: update.clImage,
+                    availableSeats: update.seats,
+                    price: update.price
+                }
+            }
+            const result = await classCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
         // My Classes
         app.get('/myClasses/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
