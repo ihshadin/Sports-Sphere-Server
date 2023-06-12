@@ -40,7 +40,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const sliderCollection = client.db('sportsSphere').collection('heroSlider');
         const reviewCollection = client.db('sportsSphere').collection('reviews');
@@ -68,10 +68,8 @@ async function run() {
         // Secure for instructor
         const verifyInstructor = async (req, res, next) => {
             const email = req.decoded.email;
-            console.log(email);
             const query = { email: email };
             const user = await userCollection.findOne(query);
-            console.log(user);
             if (user?.role !== 'instructor') {
                 return res.status(403).send({ error: true, message: 'forbidden message' })
             }
@@ -179,7 +177,7 @@ async function run() {
             const result = await userCollection.find(query).toArray();
             res.send(result);
         })
-        app.post('/user', verifyJWT, async (req, res) => {
+        app.post('/user', async (req, res) => {
             const user = req.body;
             const query = { email: user.email };
             const exixtedUser = await userCollection.findOne(query);
@@ -262,7 +260,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
