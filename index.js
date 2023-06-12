@@ -58,6 +58,11 @@ async function run() {
 
         // Class APIs
         app.get('/classes', async (req, res) => {
+            const query = { status: 'approved' }
+            const result = await classCollection.find(query).toArray();
+            res.send(result);
+        })
+        app.get('/manageClasses', async (req, res) => {
             const result = await classCollection.find().toArray();
             res.send(result);
         })
@@ -76,7 +81,8 @@ async function run() {
                     className: update.clName,
                     classImage: update.clImage,
                     availableSeats: update.seats,
-                    price: update.price
+                    price: update.price,
+                    status: 'pending'
                 }
             }
             const result = await classCollection.updateOne(query, updatedDoc);
@@ -152,6 +158,11 @@ async function run() {
             const result = await userCollection.find().toArray();
             res.send(result);
         })
+        app.get('/instructor', async (req, res) => {
+            const query = { role: 'instructor' };
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
+        })
         app.post('/user', async (req, res) => {
             const user = req.body;
             const query = { email: user.email };
@@ -208,6 +219,12 @@ async function run() {
             })
         })
         // Payments APIs
+        app.get('/payments/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await paymentsCollection.find(query).sort({ data: 1 }).toArray();
+            res.send(result);
+        })
         app.post('/payments', verifyJWT, async (req, res) => {
             const payment = req.body;
             const enrolledResult = await paymentsCollection.insertOne(payment);
@@ -216,7 +233,7 @@ async function run() {
             const update = {
                 $inc: {
                     availableSeats: -1,
-                    enrolledStudents: 1
+                    enrolledStudent: 1
                 }
             };
             const updateResult = await classCollection.updateOne(query, update);
